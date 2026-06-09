@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Farm Dashboard</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
+
+<style>
+
+body{
+    margin:0;
+    font-family:'Kanit',sans-serif;
+    background:#0b0b12;
+    color:white;
+}
+
+h1{
+    text-align:center;
+    padding:20px;
+    color:#a855f7;
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+    gap:12px;
+    padding:15px;
+}
+
+.card{
+    background:#16162a;
+    padding:15px;
+    border-radius:12px;
+    border:1px solid #2b2b40;
+}
+
+.title{
+    font-size:14px;
+    margin-bottom:8px;
+    color:#c4b5fd;
+}
+
+button{
+    width:100%;
+    padding:10px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    font-weight:bold;
+    transition:.2s;
+}
+
+.on{background:#22c55e;}
+.off{background:#ef4444;color:white;}
+
+.value{
+    font-size:22px;
+    text-align:center;
+    margin-top:10px;
+}
+
+.small{
+    text-align:center;
+    font-size:12px;
+    color:#aaa;
+}
+
+</style>
+</head>
+
+<body>
+
+<h1>💜 Smart Farm Dashboard</h1>
+
+<div class="grid">
+
+<!-- CONTROL -->
+
+<div class="card"><div class="title">LED A (V0)</div><button id="v0" class="off" onclick="toggle('V0','v0')">OFF</button></div>
+<div class="card"><div class="title">LED B (V1)</div><button id="v1" class="off" onclick="toggle('V1','v1')">OFF</button></div>
+<div class="card"><div class="title">Pump A (V2)</div><button id="v2" class="off" onclick="toggle('V2','v2')">OFF</button></div>
+<div class="card"><div class="title">Pump B (V3)</div><button id="v3" class="off" onclick="toggle('V3','v3')">OFF</button></div>
+
+<div class="card"><div class="title">Fan (V4)</div><button id="v4" class="off" onclick="toggle('V4','v4')">OFF</button></div>
+<div class="card"><div class="title">Mist (V5)</div><button id="v5" class="off" onclick="toggle('V5','v5')">OFF</button></div>
+<div class="card"><div class="title">Fertilizer (V6)</div><button id="v6" class="off" onclick="toggle('V6','v6')">OFF</button></div>
+<div class="card"><div class="title">Valve (V7)</div><button id="v7" class="off" onclick="toggle('V7','v7')">OFF</button></div>
+
+<!-- SENSOR -->
+
+<div class="card"><div class="title">Temperature (V8)</div><div class="value" id="v8">--</div><div class="small">°C</div></div>
+<div class="card"><div class="title">Humidity (V9)</div><div class="value" id="v9">--</div><div class="small">%</div></div>
+<div class="card"><div class="title">Soil Moisture (V10)</div><div class="value" id="v10">--</div><div class="small">%</div></div>
+<div class="card"><div class="title">Light Intensity (V11)</div><div class="value" id="v11">--</div><div class="small">%</div></div>
+
+<div class="card"><div class="title">Water Tank (V12)</div><div class="value" id="v12">--</div><div class="small">%</div></div>
+
+<div class="card"><div class="title">System Status (V13)</div><div class="value" id="v13">--</div></div>
+
+</div>
+
+<script>
+
+const TOKEN = "IBmxrVftrz93W54apzkRC1SmokiWJWMR";
+const BASE = "https://blynk.cloud/external/api";
+
+/* ---------------- SET ---------------- */
+async function setPin(pin,val){
+    await fetch(`${BASE}/update?token=${TOKEN}&${pin}=${val}`);
+}
+
+/* ---------------- GET ---------------- */
+async function getPin(pin){
+    let r = await fetch(`${BASE}/get?token=${TOKEN}&${pin}`);
+    return await r.text();
+}
+
+/* ---------------- TOGGLE ---------------- */
+async function toggle(pin,id){
+
+    let btn = document.getElementById(id);
+    let state = btn.classList.contains("on") ? 0 : 1;
+
+    await setPin(pin,state);
+
+    btn.classList.toggle("on");
+    btn.classList.toggle("off");
+
+    btn.innerText = state ? "ON" : "OFF";
+}
+
+/* ---------------- REFRESH SENSOR ---------------- */
+async function refresh(){
+
+    document.getElementById("v8").innerText  = await getPin("V8");
+    document.getElementById("v9").innerText  = await getPin("V9");
+    document.getElementById("v10").innerText = await getPin("V10");
+    document.getElementById("v11").innerText = await getPin("V11");
+    document.getElementById("v12").innerText = await getPin("V12");
+    document.getElementById("v13").innerText = await getPin("V13");
+
+}
+
+setInterval(refresh,3000);
+refresh();
+
+</script>
+
+</body>
+</html>
